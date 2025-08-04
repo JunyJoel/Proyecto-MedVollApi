@@ -1,4 +1,4 @@
-package med.voll.api.domain.consulta.validaciones;
+package med.voll.api.domain.consulta.validaciones.agendamiento;
 
 import med.voll.api.domain.ValidacionException;
 import med.voll.api.domain.consulta.ConsultaRepository;
@@ -13,7 +13,7 @@ public class ValidacionConsultasMedicoMismoHorario implements ValidacionDeConsul
     private ConsultaRepository repository;
 
     public void validar(DatosAgendarConsulta datos) {
-        var medicoConConsultaEnElMismoHorario = repository.existsByMedicoIdAndFecha(datos.idMedico(), datos.fecha());
+        var medicoConConsultaEnElMismoHorario = repository.existsByMedicoIdAndFechaAndMotivoCancelacionIsNull(datos.idMedico(), datos.fecha());
         if (medicoConConsultaEnElMismoHorario) {
             throw new ValidacionException("Medico ya tiene consulta en el mismo horario");
         }

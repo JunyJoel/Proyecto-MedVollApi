@@ -2,14 +2,14 @@ package med.voll.api.domain.consulta;
 
 import jakarta.validation.Valid;
 import med.voll.api.domain.ValidacionException;
-import med.voll.api.domain.consulta.validaciones.ValidacionDeConsultas;
+import med.voll.api.domain.consulta.validaciones.agendamiento.ValidacionDeConsultas;
+import med.voll.api.domain.consulta.validaciones.cancelacion.ValidacionCancelacionConsulta;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.domain.paciente.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 @Service
@@ -22,6 +22,8 @@ public class AgendamentoDeConsultas {
     MedicoRepository medicoRepository;
     @Autowired
     private List<ValidacionDeConsultas> validaciones; //Patron Strategy
+    @Autowired
+    private List<ValidacionCancelacionConsulta> validadoresCancelacion; //Patron Strategy>
 
     public DatosDetalleConsulta agendarConsulta(DatosAgendarConsulta datos) {
         if(!pacienteRepository.existsById(datos.idPaciente())) throw new ValidacionException("Id dePaciente no encontrado");
@@ -49,7 +51,7 @@ public class AgendamentoDeConsultas {
     }
 
     public void cancelarConsulta(@Valid DatosCancelacionConsulta datos) {
-        if(datos.idConsulta() == null) throw new ValidacionException("Id de consulta no puede ser nulo");
+        /*if(datos.idConsulta() == null) throw new ValidacionException("Id de consulta no puede ser nulo");
         if(!consultaRepository.existsById(datos.idConsulta())) throw new ValidacionException("Consulta no registrada en DB");
         if(datos.motivo() == null) throw new ValidacionException("Debe ingresar un motivo de cancelacion");
 
@@ -58,8 +60,15 @@ public class AgendamentoDeConsultas {
         var diferenciaEnHoras = Duration.between(fechaActual, consulta.getFecha()).toHours();
         if (diferenciaEnHoras < 24) throw new ValidacionException("No se puede cancelar una consulta con menos de 24 horas de anticipacion" + diferenciaEnHoras);
 
+        consulta.cancelar(datos.motivo());*/
+
+        if(!consultaRepository.existsById(datos.idConsulta())){
+            throw new ValidacionException("Consulta no registrada en DB");
+        }
+
+        validadoresCancelacion.forEach(v -> v.validar(datos));
+
+        var consulta = consultaRepository.getReferenceById(datos.idConsulta());
         consulta.cancelar(datos.motivo());
-
-
     }
 }
