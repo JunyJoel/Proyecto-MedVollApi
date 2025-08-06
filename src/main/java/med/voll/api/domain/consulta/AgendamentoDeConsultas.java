@@ -51,24 +51,13 @@ public class AgendamentoDeConsultas {
     }
 
     public void cancelarConsulta(@Valid DatosCancelacionConsulta datos) {
-        /*if(datos.idConsulta() == null) throw new ValidacionException("Id de consulta no puede ser nulo");
-        if(!consultaRepository.existsById(datos.idConsulta())) throw new ValidacionException("Consulta no registrada en DB");
-        if(datos.motivo() == null) throw new ValidacionException("Debe ingresar un motivo de cancelacion");
-
         var consulta = consultaRepository.getReferenceById(datos.idConsulta());
-        var fechaActual = LocalDateTime.now();
-        var diferenciaEnHoras = Duration.between(fechaActual, consulta.getFecha()).toHours();
-        if (diferenciaEnHoras < 24) throw new ValidacionException("No se puede cancelar una consulta con menos de 24 horas de anticipacion" + diferenciaEnHoras);
-
-        consulta.cancelar(datos.motivo());*/
-
-        if(!consultaRepository.existsById(datos.idConsulta())){
-            throw new ValidacionException("Consulta no registrada en DB");
-        }
+        if(!consultaRepository.existsById(datos.idConsulta())) throw new ValidacionException("Consulta no registrada en DB");
+        if(consultaRepository.getReferenceById(datos.idConsulta()).getMotivoCancelacion() != null) throw new ValidacionException("La consulta ya fue cancelada anteriormente...\nMotivo: "+ consulta.getMotivoCancelacion());
+        if(datos.motivo() == null) throw new ValidacionException("Debe ingresar un motivo de cancelacion");
 
         validadoresCancelacion.forEach(v -> v.validar(datos));
 
-        var consulta = consultaRepository.getReferenceById(datos.idConsulta());
         consulta.cancelar(datos.motivo());
     }
 }

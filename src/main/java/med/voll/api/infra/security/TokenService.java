@@ -32,6 +32,7 @@ public class TokenService {
 
     public String getSubject(String tokenJWT){ //se obtiene el subject del token
         try {
+            System.out.println("Verificando token...\n");
             var algoritmo = Algorithm.HMAC256(secret); //se asigna el algoritmo de encriptación a una variable
             return JWT.require(algoritmo) //se selecciona el algoritmo de encriptación para poder desencriptar el token
                     .withIssuer(ISSUER) //se agrega la información del emisor, debe ser igual en el MetodogenerarToken
